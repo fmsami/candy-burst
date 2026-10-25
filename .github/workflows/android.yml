@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -41,3 +44,20 @@ jobs:
           name: candy-burst-apk
           path: candy-burst.apk
           if-no-files-found: error
+
+      # One rolling release, so this link always gets the newest build:
+      # https://github.com/<owner>/<repo>/releases/latest/download/candy-burst.apk
+      - name: Publish APK to the Android release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag -f android
+          git push -f origin android
+          notes="Download **candy-burst.apk** below on your Android phone, open it, and allow installing from that source when asked. Built from ${GITHUB_SHA::7}."
+          if gh release view android >/dev/null 2>&1; then
+            gh release upload android candy-burst.apk --clobber
+            gh release edit android --notes "$notes" --latest
+          else
+            gh release create android candy-burst.apk --title "Candy Burst for Android" --notes "$notes" --latest
+          fi

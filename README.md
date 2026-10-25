@@ -4,6 +4,8 @@ A match-3 candy game for the web, Android and iPhone. The whole game is one HTML
 
 **Play now:** https://fmsami.github.io/candy-burst/ (on iPhone: open in Safari → Share → Add to Home Screen)
 
+**Android app:** [download candy-burst.apk](https://github.com/fmsami/candy-burst/releases/latest/download/candy-burst.apk)
+
 ## Project layout
 
 | Path | What it is |
@@ -26,7 +28,7 @@ Then go to http://localhost:8765. On a phone, the 📲 button on the map install
 
 ## Android
 
-**Get the APK without installing anything:** every push to `main` builds one on GitHub. Open the repo's **Actions** tab → latest **Android APK** run → download `candy-burst-apk`. On the phone, open the `.apk` and allow installing from that source when asked.
+**Get the APK:** every push to `main` builds one on GitHub and puts it on the [Candy Burst for Android release](https://github.com/fmsami/candy-burst/releases/tag/android). [This link](https://github.com/fmsami/candy-burst/releases/latest/download/candy-burst.apk) always downloads the newest build. On the phone, open the `.apk` and allow installing from that source when asked.
 
 **Build it yourself:** install [Android Studio](https://developer.android.com/studio) (it includes the SDK and Java 21), then:
 
