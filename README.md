@@ -2,6 +2,8 @@
 
 A match-3 candy game for the web, Android and iPhone. The whole game is one HTML file (`www/index.html`); [Capacitor](https://capacitorjs.com) wraps it as native Android and iOS apps.
 
+**Play now:** https://fmsami.github.io/candy-burst/ (on iPhone: open in Safari → Share → Add to Home Screen)
+
 ## Project layout
 
 | Path | What it is |
