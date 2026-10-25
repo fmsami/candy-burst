@@ -5,9 +5,10 @@
   "backgroundColor": "#b84fc8",
   "plugins": {
     "SplashScreen": {
-      "launchAutoHide": false,
+      "launchAutoHide": true,
       "backgroundColor": "#b84fc8",
-      "showSpinner": false
+      "showSpinner": false,
+      "launchShowDuration": 900
     }
   },
   "android": {

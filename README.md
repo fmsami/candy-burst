@@ -1,16 +1,58 @@
 # Candy Burst
 
-A match-3 candy game that runs in the browser. One HTML file, no build step, no dependencies.
+A match-3 candy game for the web, Android and iPhone. The whole game is one HTML file (`www/index.html`); [Capacitor](https://capacitorjs.com) wraps it as native Android and iOS apps.
 
-## Play
+## Project layout
 
-Open `index.html` in a browser, or serve the folder:
+| Path | What it is |
+|---|---|
+| `www/` | The game: `index.html`, web app manifest, offline service worker, fonts, icons |
+| `android/` | Native Android project (open in Android Studio) |
+| `ios/` | Native iOS project (open in Xcode) |
+| `assets/` | Source images for the native icons and splash screens |
+| `scripts/` | Font copy, icon generation, and single-file page build |
+| `.github/workflows/android.yml` | Builds the Android APK on every push |
+
+## Play in a browser
 
 ```bash
-python -m http.server 8765
+npm install
+npm run serve
 ```
 
-Then go to http://localhost:8765.
+Then go to http://localhost:8765. On a phone, the 📲 button on the map installs it to the home screen (works offline).
+
+## Android
+
+**Get the APK without installing anything:** every push to `main` builds one on GitHub. Open the repo's **Actions** tab → latest **Android APK** run → download `candy-burst-apk`. On the phone, open the `.apk` and allow installing from that source when asked.
+
+**Build it yourself:** install [Android Studio](https://developer.android.com/studio) (it includes the SDK and Java 21), then:
+
+```bash
+npm install
+npm run sync          # bundles fonts, renders icons, copies www/ into the native projects
+npx cap open android  # then press Run in Android Studio
+```
+
+**Google Play:** needs a Google Play developer account (one-time $25). Create an upload keystore in Android Studio (*Build → Generate Signed App Bundle*) and upload the `.aab`.
+
+## iPhone / iPad
+
+Building an iOS app needs a Mac with Xcode.
+
+```bash
+npm install
+npm run sync
+npx cap open ios
+```
+
+In Xcode, select the **App** target → *Signing & Capabilities* → choose your Apple ID as the team, plug in the iPhone and press Run. A free Apple ID installs it on your own phone for 7 days; the Apple Developer Program ($99/year) removes that limit and lets you publish on the App Store and TestFlight.
+
+**No Mac?** Host `www/` on any HTTPS site (GitHub Pages, Netlify, Cloudflare Pages), open it in Safari on the iPhone, tap **Share → Add to Home Screen**. It runs full screen and offline like an app.
+
+## After changing the game
+
+Edit `www/index.html`, then run `npm run sync` so the Android and iOS projects get the new version. `npm run artifact` writes a single self-contained page to `dist/` for hosts that add their own page wrapper.
 
 ## Features
 
@@ -48,12 +90,13 @@ Then go to http://localhost:8765.
 - Daily Booster Wheel, and a booster reward for your first 3 stars on a level
 - Hints after a few idle seconds and an automatic shuffle when no moves are left
 - Synthesized sound effects (toggle with the speaker button)
+- In the apps: haptic feedback on blasts and wins, Android back button support, portrait lock, sound pauses in the background
 
 Progress is saved in the browser's local storage.
 
 ## Level format
 
-Levels live in the `LEVELS` array in `index.html`. Each map is a list of strings:
+Levels live in the `LEVELS` array in `www/index.html`. Each map is a list of strings:
 
 | Char | Cell |
 |---|---|
