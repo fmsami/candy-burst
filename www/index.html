@@ -5,8 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Candy Burst</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Lilita+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#d94fa0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Candy Burst">
 <style>
 /* Layout: full-screen app, a winding level map and a play screen (HUD / board / booster tray). One candy-shop look in every theme. */
 :root{
@@ -18,7 +25,7 @@
   --body:'Fredoka',system-ui,-apple-system,'Segoe UI',sans-serif;
   color-scheme:light;
 }
-html,body{height:100%;margin:0}
+html,body{height:100%;margin:0;overscroll-behavior:none;-webkit-touch-callout:none}
 body{background:var(--sky-b);background-image:radial-gradient(circle at 18% 8%,var(--sky-c) 0,transparent 32%),radial-gradient(circle at 88% 28%,var(--sky-a) 0,transparent 46%),linear-gradient(165deg,var(--sky-a),var(--sky-b));background-attachment:fixed;font-family:var(--body);color:var(--ink);overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button{font-family:var(--body);color:inherit}
 button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -123,7 +130,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .wheel-ptr{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:30px;z-index:2;color:var(--berry);text-shadow:0 2px 0 #fff,0 -2px 0 #fff,2px 0 0 #fff,-2px 0 0 #fff}
 #toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translate(-50%,-20px);background:rgba(86,32,107,.92);color:#fff;padding:10px 18px;border-radius:999px;font-weight:600;font-size:15px;opacity:0;transition:all .25s;z-index:60;pointer-events:none;max-width:min(90vw,420px);text-align:center;box-sizing:border-box}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-@media (max-width:420px){.topbar{gap:6px}.brand{font-size:19px}.iconbtn{width:37px;height:37px;font-size:18px}.pill{padding:6px 9px;font-size:14px;gap:4px}.hudbox{min-width:52px;padding:5px 7px}.hudbox.moves b{font-size:27px}.goal{font-size:17px}.goal img{width:25px;height:25px}.starbar{width:66px}.boost{width:50px;height:50px;font-size:24px}}
+@media (max-width:420px){#livesT{display:none}.topbar{gap:6px}.brand{font-size:19px}.iconbtn{width:37px;height:37px;font-size:18px}.pill{padding:6px 9px;font-size:14px;gap:4px}.hudbox{min-width:52px;padding:5px 7px}.hudbox.moves b{font-size:27px}.goal{font-size:17px}.goal img{width:25px;height:25px}.starbar{width:66px}.boost{width:50px;height:50px;font-size:24px}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -133,6 +140,7 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   <header class="topbar">
     <div class="brand">Candy Burst</div>
     <button class="pill" id="livesPill" aria-label="Lives">❤️ <b id="livesN">5</b> <small id="livesT">Full</small></button>
+    <button class="iconbtn hidden" id="installBtn" aria-label="Install app">📲</button>
     <button class="iconbtn" id="wheelBtn" aria-label="Daily booster wheel">🎡<span class="dot hidden" id="wheelDot"></span></button>
     <button class="iconbtn" id="bagBtn" aria-label="Boosters">🎒</button>
     <button class="iconbtn" id="soundBtn" aria-label="Sound">🔊</button>
@@ -426,6 +434,20 @@ const sfx = {
   word: () => tone(990, .2, 'sine', .08, 500),
   spin: () => tone(1000, .03, 'square', .025),
 };
+
+/* ---------- haptics ---------- */
+const Native = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() ? window.Capacitor.Plugins : null;
+function buzz(kind) {
+  if (S.haptics === false) return;
+  try {
+    if (Native && Native.Haptics) {
+      if (kind === 'win') Native.Haptics.notification({ type: 'SUCCESS' });
+      else Native.Haptics.impact({ style: kind === 'heavy' ? 'HEAVY' : kind === 'medium' ? 'MEDIUM' : 'LIGHT' });
+    } else if (navigator.vibrate && matchMedia('(pointer:coarse)').matches) navigator.vibrate(kind === 'heavy' ? 35 : kind === 'medium' ? 18 : 8);
+  } catch (e) {}
+}
+const HAPTIC = { boom: 'heavy', bomb: 'heavy', zap: 'medium', make: 'light', ing: 'medium', bad: 'light', win: 'win', sugar: 'medium' };
+for (const [k, kind] of Object.entries(HAPTIC)) { const play = sfx[k]; sfx[k] = (...a) => { buzz(kind); play(...a); }; }
 
 /* ---------- board state ---------- */
 let G = null;          // current game
@@ -1096,7 +1118,9 @@ $('#menuBtn').addEventListener('click', () => {
     <div class="col"><button class="btn big green" data-close>Resume</button>
     <button class="btn" id="pmRestart">Restart (−1 ❤️)</button>
     <button class="btn" id="pmQuit">Quit to map (−1 ❤️)</button>
-    <button class="btn ghost" id="pmSound">${S.sound ? '🔊 Sound on' : '🔇 Sound off'}</button></div>`, c => {
+    <button class="btn ghost" id="pmSound">${S.sound ? '🔊 Sound on' : '🔇 Sound off'}</button>
+    <button class="btn ghost" id="pmBuzz">${S.haptics !== false ? '📳 Vibration on' : '📴 Vibration off'}</button></div>`, c => {
+    c.querySelector('#pmBuzz').onclick = e => { S.haptics = S.haptics === false; save(); e.target.textContent = S.haptics ? '📳 Vibration on' : '📴 Vibration off'; buzz('medium'); };
     c.querySelector('#pmRestart').onclick = () => { const n = G.n; loseLife(); closeModal(); goMap(); if (S.lives > 0) preLevel(n); else toast('Out of lives! Wait for a refill.'); };
     c.querySelector('#pmQuit').onclick = () => { loseLife(); closeModal(); goMap(); };
     c.querySelector('#pmSound').onclick = e => { toggleSound(); e.target.textContent = S.sound ? '🔊 Sound on' : '🔇 Sound off'; };
@@ -1220,6 +1244,48 @@ $('#wheelBtn').onclick = () => {
 };
 
 window.addEventListener('resize', () => { if (curScreen === 'game') layout(); else renderMap(); });
+
+/* ---------- app shell: background, back button, install ---------- */
+function onBackground(hidden) {
+  if (!AC) return;
+  try { if (hidden) AC.suspend(); else if (S.sound) AC.resume(); } catch (e) {}
+  if (!hidden) { tickLives(); updateTopbar(); }
+}
+document.addEventListener('visibilitychange', () => onBackground(document.hidden));
+if (Native) {
+  const { App, StatusBar, SplashScreen } = Native;
+  if (App) {
+    App.addListener('backButton', () => {
+      const closer = $('#modal').classList.contains('hidden') ? null : $('#modalCard [data-close]');
+      if (closer) { closer.click(); return; }
+      if (!$('#modal').classList.contains('hidden')) return;   // win/fail screens need a choice
+      if (curScreen === 'game') { $('#menuBtn').click(); return; }
+      App.exitApp();
+    });
+    App.addListener('pause', () => onBackground(true));
+    App.addListener('resume', () => onBackground(false));
+  }
+  if (StatusBar) { StatusBar.setStyle({ style: 'DARK' }).catch(() => {}); StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {}); }
+  if (SplashScreen) setTimeout(() => SplashScreen.hide().catch(() => {}), 300);
+}
+// installable web app (Android "Install", iPhone "Add to Home Screen")
+let installEvt = null;
+const standalone = matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone;
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (!Native && !standalone && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('#installBtn').classList.remove('hidden'); });
+if (!Native && !standalone && isIOS) $('#installBtn').classList.remove('hidden');
+$('#installBtn').onclick = async () => {
+  sfx.click();
+  if (installEvt) { installEvt.prompt(); const r = await installEvt.userChoice; if (r.outcome === 'accepted') $('#installBtn').classList.add('hidden'); installEvt = null; return; }
+  modal(`<div class="bigemoji">📲</div><h2>Add to Home Screen</h2>
+    <p>Play Candy Burst full screen like a regular app, even offline.</p>
+    <div class="tip">1. Tap the <b>Share</b> button <b>⬆︎</b> in Safari's toolbar<br>2. Choose <b>Add to Home Screen</b><br>3. Tap <b>Add</b></div>
+    <div class="row"><button class="btn" data-close>Got it</button></div>`);
+};
+
 updateTopbar();
 renderMap();
 </script>

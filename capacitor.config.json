@@ -1,0 +1,20 @@
+{
+  "appId": "com.fmsami.candyburst",
+  "appName": "Candy Burst",
+  "webDir": "www",
+  "backgroundColor": "#b84fc8",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#b84fc8",
+      "showSpinner": false
+    }
+  },
+  "android": {
+    "backgroundColor": "#b84fc8"
+  },
+  "ios": {
+    "backgroundColor": "#b84fc8",
+    "contentInset": "never"
+  }
+}

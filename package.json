@@ -1,0 +1,31 @@
+{
+  "name": "candy-burst",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Candy Burst match-3 game for web, Android and iOS",
+  "author": "Fahim Muntasir Sami",
+  "scripts": {
+    "fonts": "node scripts/copy-fonts.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "build": "npm run fonts && npm run icons",
+    "sync": "npm run build && npx cap sync",
+    "artifact": "node scripts/build-artifact.mjs",
+    "serve": "npx --yes http-server www -p 8765 -c-1"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.3",
+    "@fontsource/fredoka": "^5.3.0",
+    "@fontsource/lilita-one": "^5.3.0",
+    "sharp": "^0.35.5"
+  }
+}
