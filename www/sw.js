@@ -1,6 +1,6 @@
 // Offline support for the installed web app: cache everything on install,
 // serve from cache first, refresh the cache in the background.
-const CACHE = 'candy-burst-v1';
+const CACHE = 'candy-burst-v2';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',
   'fonts/fonts.css',

@@ -87,6 +87,14 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 #modal{position:fixed;inset:0;background:rgba(40,10,60,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 .card{background:var(--panel);border-radius:30px;padding:22px 20px 24px;width:100%;max-width:370px;max-height:calc(100% - 20px);overflow:auto;box-shadow:0 8px 0 var(--line),0 24px 50px rgba(0,0,0,.35);text-align:center;border:4px solid #fff;box-sizing:border-box;animation:cardIn .4s cubic-bezier(.2,1.5,.4,1)}
 @keyframes cardIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+/* Menu transitions (ideas from Awwwards winners Awards Racing and Forge Automotive): the backdrop opens with an
+   iris wipe from the centre and the card's contents pop in one after another, like stages loading in. */
+#modal:not(.hidden){animation:iris .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes iris{from{clip-path:circle(0% at 50% 50%)}to{clip-path:circle(150% at 50% 50%)}}
+#modalCard>*{animation:stageIn .45s cubic-bezier(.2,1.4,.4,1) both}
+#modalCard>:nth-child(1){animation-delay:.12s}#modalCard>:nth-child(2){animation-delay:.18s}#modalCard>:nth-child(3){animation-delay:.24s}
+#modalCard>:nth-child(4){animation-delay:.3s}#modalCard>:nth-child(n+5){animation-delay:.36s}
+@keyframes stageIn{from{transform:translateY(14px) scale(.96);opacity:0}}
 .card h2{font:400 32px/1.1 var(--display);margin:4px 0 10px;color:var(--berry);text-wrap:balance}
 .card h3{font:600 12px var(--body);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);margin:16px 0 8px}
 .card p{margin:8px 0;line-height:1.45}
